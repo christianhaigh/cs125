@@ -3,16 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import random
 import time
-
-n = 5000
-nodes = [(random.uniform(0.0,1.0), random.uniform(0.0,1.0), x) for x in xrange(n)]
-min_span_tree = [nodes[0]]
-not_in_min_span_tree = nodes[1:]
-""" nodes are now not indexed but are rather x, y coordinates -- can we still do this? """ 
-branches = [(2, (0,0)) for x in xrange(n)]
-cost = 0
-costs = []
-
+import sys
 
 def branch_selector(branches): 
     """ Select lowest weighted branch that doesn't give cycle """  
@@ -38,22 +29,43 @@ def branch_filter(new_node):
     """ Removes branch options that would form a cycle """
     branches[new_node] = (2, (0,0),(0,0))
 
-start_time = time.time()
-new_branches(min_span_tree[0]) 
-count = 2
-while (len(min_span_tree) < n):
-    new_idx, branch = branch_selector(branches)
-    min_span_tree.append(branch[1])
-    not_in_min_span_tree.remove((branch[1][0],branch[1][1],new_idx) )
-    cost+= branch[0]
-    costs.append(branch[0])
-    branch_filter(new_idx)
-    new_branches(branch[1])
-    if count%1000 == 0:
-        print "Performed", count, "Iterations"
-    count+=1
-print "Average Cost:", cost/n
-print "Maximum Cost:", max(costs)
-print "Minimum Cost:", min(costs)
-print("--- %s seconds ---" % (time.time() - start_time))
+if __name__ == "__main__":
+    if len(sys.argv) != 5: 
+        print "USAGE: randmst 0 numpoints numtrials dimension"
+        sys.exit()
+
+    n = int(sys.argv[2])
+    k = int(sys.argv[3])
+    dim = int(sys.argv[4])
+
+    for i in xrange(k):
+        if dim == 2: 
+
+            nodes = [(random.uniform(0.0,1.0), random.uniform(0.0,1.0), x) for x in xrange(n)]
+            min_span_tree = [nodes[0]]
+            not_in_min_span_tree = nodes[1:]
+            """ nodes are now not indexed but are rather x, y coordinates -- can we still do this? """ 
+            branches = [(2, (0,0)) for x in xrange(n)]
+            cost = 0
+            costs = []
+            start_time = time.time()
+            new_branches(min_span_tree[0]) 
+            count = 2
+            while (len(min_span_tree) < n):
+                new_idx, branch = branch_selector(branches)
+                min_span_tree.append(branch[1])
+                not_in_min_span_tree.remove((branch[1][0],branch[1][1],new_idx))
+                cost+= branch[0]
+                costs.append(branch[0])
+                branch_filter(new_idx)
+                new_branches(branch[1])
+                if count%1000 == 0:
+                    print "Performed", count, "Iterations"
+                count+=1
+
+        print "Iteration:",i,"of",k,"with", n,"nodes"
+        print "Average Cost:", cost/n
+        print "Maximum Cost:", max(costs)
+        print "Minimum Cost:", min(costs)
+        print("--- %s seconds ---" % (time.time() - start_time))
 
